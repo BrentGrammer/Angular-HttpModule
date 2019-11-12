@@ -58,4 +58,11 @@ export class PostsService {
         })
       );
   }
+
+  deletePosts() {
+    // return the observable if you want to be informed of the deletion of all posts in the component
+    return this.http.delete(
+      "https://angular-recipes-app-584be.firebaseio.com/posts.json"
+    );
+  }
 }
