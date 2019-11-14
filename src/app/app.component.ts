@@ -1,19 +1,26 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, OnDestroy } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { PostsService } from "./posts.service";
+import { Subscription } from "rxjs";
 
 @Component({
   selector: "app-root",
   templateUrl: "./app.component.html",
   styleUrls: ["./app.component.css"]
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
   loadedPosts = [];
   isFetching = false;
+  error = null;
+  // used to unsubscribe from the error subject when component is destroyed:
+  errorSub: Subscription;
 
   constructor(private http: HttpClient, private postsService: PostsService) {}
 
   ngOnInit() {
+    this.errorSub = this.postsService.error.subscribe(errorMessage => {
+      this.error = errorMessage;
+    });
     this.fetchPosts();
   }
 
@@ -30,13 +37,20 @@ export class AppComponent implements OnInit {
    *
    *  Use the service to fetch the posts which returns a prepared observable (transforming response to an array) and subscribe
    *  to it.
+   *
+   * Errors: Handle these in the second argument to subscribe
    */
   private fetchPosts() {
     this.isFetching = true;
-    this.postsService.fetchPosts().subscribe(posts => {
-      this.isFetching = false;
-      this.loadedPosts = posts;
-    });
+    this.postsService.fetchPosts().subscribe(
+      posts => {
+        this.isFetching = false;
+        this.loadedPosts = posts;
+      },
+      error => {
+        this.error = error.message;
+      }
+    );
   }
 
   onFetchPosts() {
@@ -47,5 +61,10 @@ export class AppComponent implements OnInit {
     this.postsService.deletePosts().subscribe(() => {
       this.loadedPosts = [];
     });
+  }
+
+  ngOnDestroy() {
+    // cancel listening to the error message emited from posts service
+    this.errorSub.unsubscribe();
   }
 }

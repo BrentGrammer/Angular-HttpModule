@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { Post } from "./post.model";
 import { map } from "rxjs/operators";
+import { Subject } from "rxjs";
 
 /**
  * The purpose of this service is to call the http methods and transform the data as needed to send to the view.
@@ -11,6 +12,16 @@ import { map } from "rxjs/operators";
 // providedIn: 'root' is the modern approach to declaring the service app wide instead of having to put it in app.module.ts
 @Injectable({ providedIn: "root" })
 export class PostsService {
+  // Create a subject if emitting errors to multiple interested components
+  /**
+   * -Useful when multiple components are interested in the error.
+
+      1) Create an error property set to a new Subject used to emit the error to subscribers
+      2) In the error callback to the subscribtion on the http request, emit the error calling .next(<errorMsg>) on the subject
+      3) In the components that are interested, subscribe to the subject
+   */
+  error = new Subject<string>();
+
   // inject http client into service
   constructor(private http: HttpClient) {}
 
@@ -31,9 +42,16 @@ export class PostsService {
         "https://angular-recipes-app-584be.firebaseio.com/posts.json",
         postData
       )
-      .subscribe(responseData => {
-        console.log(responseData);
-      });
+      .subscribe(
+        responseData => {
+          console.log(responseData);
+        },
+        error => {
+          // emit the error to multiple interested components with the error Subject and subscribe to it in the interested components
+          // (in the ngOnInit of the component for example)
+          this.error.next(error.message);
+        }
+      );
   }
 
   fetchPosts() {
