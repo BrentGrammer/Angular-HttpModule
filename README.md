@@ -5,3 +5,5 @@
 - Working with pipes and operators to transform response data
 - Loading data from responses into components for display
 - Separating logic for requests and transformation of data to a service
+- Handling Errors in Subscriptions to Observables and Subjects
+- Working with the **catchError** operator

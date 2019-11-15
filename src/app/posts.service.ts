@@ -1,8 +1,8 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { Post } from "./post.model";
-import { map } from "rxjs/operators";
-import { Subject } from "rxjs";
+import { map, catchError } from "rxjs/operators";
+import { Subject, throwError } from "rxjs";
 
 /**
  * The purpose of this service is to call the http methods and transform the data as needed to send to the view.
@@ -73,6 +73,11 @@ export class PostsService {
             }
           }
           return postsArray;
+        }),
+        catchError(errorRes => {
+          // could send to analytics server - some generic error handling task, etc.
+          // throwError wraps the error in an Observable to pass on to the subscribe function to listen to and use
+          return throwError(errorRes);
         })
       );
   }
