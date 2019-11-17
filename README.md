@@ -7,3 +7,4 @@
 - Separating logic for requests and transformation of data to a service
 - Handling Errors in Subscriptions to Observables and Subjects
 - Working with the **catchError** operator
+- Adding headers to requests

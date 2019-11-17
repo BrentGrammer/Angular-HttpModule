@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { HttpClient, HttpHeaders } from "@angular/common/http";
+import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { Post } from "./post.model";
 import { map, catchError } from "rxjs/operators";
 import { Subject, throwError } from "rxjs";
@@ -58,11 +58,17 @@ export class PostsService {
     /**
      * In the service, only return the prepared Observable from the fetch and subscribe to it in the component class.
      */
+    // Params is immutable, so assign it to a let for adding multiple query params for the request:
+    let myParams = new HttpParams();
+    myParams = myParams.append("print", "pretty");
+    myParams = myParams.append("another", "param");
+
     return this.http
       .get<{ [key: string]: Post }>(
         "https://angular-recipes-app-584be.firebaseio.com/posts.json",
         {
-          headers: new HttpHeaders({ "Custom-Header": "Hello" })
+          headers: new HttpHeaders({ "Custom-Header": "Hello" }),
+          params: myParams
         }
       )
       .pipe(
