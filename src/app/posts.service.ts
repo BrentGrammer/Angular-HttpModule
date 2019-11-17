@@ -1,7 +1,12 @@
 import { Injectable } from "@angular/core";
-import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
+import {
+  HttpClient,
+  HttpHeaders,
+  HttpParams,
+  HttpEventType
+} from "@angular/common/http";
 import { Post } from "./post.model";
-import { map, catchError } from "rxjs/operators";
+import { map, catchError, tap } from "rxjs/operators";
 import { Subject, throwError } from "rxjs";
 
 /**
@@ -40,7 +45,10 @@ export class PostsService {
     this.http
       .post<{ name: string }>(
         "https://angular-recipes-app-584be.firebaseio.com/posts.json",
-        postData
+        postData,
+        {
+          observe: "response"
+        }
       )
       .subscribe(
         responseData => {
@@ -91,10 +99,33 @@ export class PostsService {
       );
   }
 
+  /**
+   * the tap operator allows you to "tap" into the data in the data flow to do something and then passes it right on to the
+   * subscribe callback.
+   * There is no need to return anything.
+   */
   deletePosts() {
     // return the observable if you want to be informed of the deletion of all posts in the component
-    return this.http.delete(
-      "https://angular-recipes-app-584be.firebaseio.com/posts.json"
-    );
+    return this.http
+      .delete("https://angular-recipes-app-584be.firebaseio.com/posts.json", {
+        observe: "events"
+      })
+      .pipe(
+        tap(event => {
+          // tap into the event being observed and passed through above
+          /**
+           * The data logged here will log a type of event (events are encoded with numbers) and a HttpResponse object
+           * Ex: Uploading files you'd get a HttpEventType.uploadProgress event fired you can check.
+           *
+           * You can check the event type with an Enum from the angular/common/http module
+           */
+          // check for the event type of sent (0) where you can inform the user that the request was sent etc.
+          if (HttpEventType.Sent) {
+            //...
+          }
+          // check if you got back a response against the evgent type - if so, the event is the response object:
+          if (event.type === HttpEventType.Response) console.log(event.body);
+        })
+      );
   }
 }
