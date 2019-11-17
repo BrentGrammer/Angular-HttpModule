@@ -8,3 +8,4 @@
 - Handling Errors in Subscriptions to Observables and Subjects
 - Working with the **catchError** operator
 - Adding headers to requests
+- Interceptors
