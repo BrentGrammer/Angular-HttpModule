@@ -1,8 +1,10 @@
 import {
   HttpInterceptor,
   HttpRequest,
-  HttpHandler
+  HttpHandler,
+  HttpEventType
 } from "@angular/common/http";
+import { tap } from "rxjs/operators";
 
 /**
  * This is provided in the app.module.ts in the providers array
@@ -25,7 +27,21 @@ export class AuthInterceptor implements HttpInterceptor {
       //url: "new-url",
       headers: req.headers.append("Auth", "Bearer xyz")
     });
-    // forward the modified request, not the original:
-    return next.handle(modifiedRequest);
+    // forward the modified request, not the original
+    // handle returns an Observable, you can chain onto it to intercept the Response as well:
+    // The observable returned is the request with the response wrapped into an Observable
+    /**
+     *      Note: The interceptor will always give you access to the event in the operator used in pipe on handle to allow granular access to 
+            the response.  
+     */
+    return next.handle(modifiedRequest).pipe(
+      tap(event => {
+        // check that the event is a Response which means the response arrived
+        if (event.type === HttpEventType.Response) {
+          // event will have a body on it since it is of type Response
+          console.log("Body", event.body);
+        }
+      })
+    );
   }
 }
