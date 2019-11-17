@@ -1,5 +1,10 @@
 ## Angular 8 - HttpClient Module use following Maximillian Schwaerzmueller's course on Udemy
 
+- **http requests are wrapped in Observables by Angular**
+  - this allows you to use pipe and operators on them, as well as interceptors
+
+### Topics:
+
 - Making RESTful Http Requests with the built in module
 - Using Typescript with the module methods
 - Working with pipes and operators to transform response data
