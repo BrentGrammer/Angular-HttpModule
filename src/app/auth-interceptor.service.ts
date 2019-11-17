@@ -1,10 +1,8 @@
 import {
   HttpInterceptor,
   HttpRequest,
-  HttpHandler,
-  HttpEventType
+  HttpHandler
 } from "@angular/common/http";
-import { tap } from "rxjs/operators";
 
 /**
  * This is provided in the app.module.ts in the providers array
@@ -21,7 +19,7 @@ export class AuthInterceptor implements HttpInterceptor {
    */
   intercept(req: HttpRequest<any>, next: HttpHandler) {
     // this will run right before the request leaves the application..
-    console.log("Request is on its way");
+
     // If you want to modify the request, you need to clone it since the request object is immutable
     const modifiedRequest = req.clone({
       //url: "new-url",
@@ -34,14 +32,7 @@ export class AuthInterceptor implements HttpInterceptor {
      *      Note: The interceptor will always give you access to the event in the operator used in pipe on handle to allow granular access to 
             the response.  
      */
-    return next.handle(modifiedRequest).pipe(
-      tap(event => {
-        // check that the event is a Response which means the response arrived
-        if (event.type === HttpEventType.Response) {
-          // event will have a body on it since it is of type Response
-          console.log("Body", event.body);
-        }
-      })
-    );
+    return next.handle(modifiedRequest);
+    // the logging interceptor logs and intercepts the Response
   }
 }

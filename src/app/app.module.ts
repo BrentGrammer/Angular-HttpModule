@@ -5,12 +5,20 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from "@angular/common/http";
 
 import { AppComponent } from "./app.component";
 import { AuthInterceptor } from "./auth-interceptor.service";
+import { LoggingInterceptorService } from "./logging-interceptor.service";
 
 @NgModule({
   declarations: [AppComponent],
   imports: [BrowserModule, FormsModule, HttpClientModule],
+  // NOTE: The order you provide interceptors matter, they will execute on requests in that order - i.e. the auth interceptor adds
+  // custom headers and the logging interceptor wants to log them.
   providers: [
-    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: LoggingInterceptorService,
+      multi: true
+    }
   ],
   bootstrap: [AppComponent]
 })
